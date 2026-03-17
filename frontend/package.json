@@ -1,6 +1,6 @@
 {
-  "name": "nlq-frontend",
-  "version": "1.0.0",
+  "name": "nlq-frontend-v2",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
@@ -8,17 +8,13 @@
     "react-scripts": "5.0.1",
     "axios": "^1.6.0",
     "recharts": "^2.10.0",
-    "react-syntax-highlighter": "^15.5.0",
-    "react-markdown": "^9.0.0",
     "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.1.0",
-    "@testing-library/user-event": "^14.5.0"
+    "@testing-library/jest-dom": "^6.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "test:coverage": "react-scripts test --coverage --watchAll=false"
+    "test": "react-scripts test"
   },
   "proxy": "http://localhost:8000",
   "browserslist": {

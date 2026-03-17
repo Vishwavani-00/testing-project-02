@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import query, history, schema
+from app.routes import query, history, schema
 
 app = FastAPI(
     title="NLQ Application API",
-    description="Natural Language Query — converts user questions to SQL, executes, and returns charts + insights",
-    version="1.0.0"
+    description="Natural Language Query — powered by TinyLlama (local) via Ollama",
+    version="2.0.0"
 )
 
 app.add_middleware(
@@ -23,9 +23,9 @@ app.include_router(schema.router, prefix="/api/schema", tags=["Schema"])
 
 @app.get("/")
 def root():
-    return {"message": "NLQ Application is running", "version": "1.0.0"}
+    return {"message": "NLQ App v2.0 — powered by TinyLlama (local)", "version": "2.0.0"}
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "model": "tinyllama", "provider": "ollama"}

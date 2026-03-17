@@ -5,7 +5,6 @@ from datetime import datetime
 
 class NLQueryRequest(BaseModel):
     question: str
-    table_hint: Optional[str] = None  # optional hint for which table to query
 
 
 class SQLResult(BaseModel):
@@ -15,7 +14,7 @@ class SQLResult(BaseModel):
 
 
 class ChartConfig(BaseModel):
-    chart_type: str       # bar, line, pie, table
+    chart_type: str
     x_axis: Optional[str] = None
     y_axis: Optional[str] = None
     title: str
@@ -29,6 +28,7 @@ class NLQueryResponse(BaseModel):
     summary: str
     execution_time_ms: float
     query_id: str
+    model: str = "tinyllama"
 
 
 class QueryHistoryItem(BaseModel):
@@ -38,10 +38,4 @@ class QueryHistoryItem(BaseModel):
     row_count: int
     chart_type: str
     summary: str
-    created_at: datetime
-
-
-class ErrorResponse(BaseModel):
-    error: str
-    detail: Optional[str] = None
-    suggestion: Optional[str] = None
+    created_at: str

@@ -1,144 +1,107 @@
-# NLQ App — Natural Language Query Application
+# NLQ App v2.0 — Natural Language Query (Local AI)
 
-Convert natural language questions into SQL, execute them, and return **visual + textual insights** instantly.
-
-> Built for Mu Sigma | Stack: React + FastAPI + PostgreSQL + OpenAI
+Convert plain English questions into SQL and get **visual charts + AI insights** — powered by **TinyLlama running locally via Ollama**. No API key. No cloud. 100% local.
 
 ---
 
-## Core Flow
+## Architecture
 
 ```
-User Question → OpenAI (NL→SQL) → PostgreSQL → Chart + Summary
+┌──────────────────┐    REST API     ┌──────────────────┐    SQLite    ┌──────────────┐
+│  React Frontend  │ ◄─────────────► │  FastAPI Backend │ ◄──────────► │  nlq.db      │
+│  (Port 3000)     │                 │  (Port 8000)     │              │  (Local)     │
+└──────────────────┘                 └──────────────────┘              └──────────────┘
+                                              │
+                                              ▼
+                                    ┌──────────────────┐
+                                    │  TinyLlama       │
+                                    │  via Ollama      │
+                                    │  (Port 11434)    │
+                                    └──────────────────┘
 ```
 
----
+## Tech Stack
 
-## Features
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18 + Recharts |
+| Backend | Python FastAPI |
+| LLM (NL→SQL) | TinyLlama 1.1B via Ollama (local) |
+| Database | SQLite (local, no setup needed) |
+| Insight Summary | TinyLlama |
 
-- 💬 **Chat-based query interface** — type questions in plain English
-- ⚡ **NL → SQL conversion** via OpenAI GPT-4o-mini
-- 📊 **Auto-generated charts** — bar, line, pie, or table (auto-detected)
-- 🧠 **Insight summaries** — business-friendly explanations of results
-- 🕑 **Query history** — re-run previous queries with one click
-- 🛡️ **SQL validation** — blocks dangerous queries (DROP, DELETE, etc.)
+## Prerequisites
 
----
-
-## Project Structure
-
-```
-nlq-app/
-├── backend/
-│   ├── main.py                    # FastAPI app entry point
-│   ├── routers/
-│   │   ├── query.py               # POST /api/query/
-│   │   ├── history.py             # GET/DELETE /api/history/
-│   │   └── schema.py              # GET /api/schema/
-│   ├── services/
-│   │   └── nlq_service.py         # NL→SQL, execution, summary, chart logic
-│   ├── models/
-│   │   └── query_models.py        # Pydantic models
-│   ├── db/
-│   │   └── database.py            # SQLAlchemy + schema fetcher
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .env.example
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx                # Main app with tabs
-│   │   ├── components/
-│   │   │   ├── QueryInput.jsx     # Input + suggestions
-│   │   │   ├── ChartView.jsx      # Bar/Line/Pie/Table charts (Recharts)
-│   │   │   ├── SQLViewer.jsx      # SQL display with copy button
-│   │   │   ├── InsightSummary.jsx # AI-generated insight card
-│   │   │   └── QueryHistory.jsx   # History sidebar
-│   │   └── services/api.js        # Axios API client
-│   ├── public/index.html
-│   ├── package.json
-│   └── Dockerfile
-├── data/
-│   └── seed.sql                   # Sample DB (sales, customers, products)
-├── docker-compose.yml
-└── README.md
-```
-
----
+1. **Ollama** installed and running
+2. **TinyLlama** pulled: `ollama pull tinyllama`
+3. Python 3.9+ and Node.js 16+
 
 ## Quick Start
 
-### Option 1 — Docker (Recommended)
-
 ```bash
-# 1. Clone the repo
+# 1. Clone
 git clone https://github.com/Vishwavani-00/testing-project-02.git
 cd testing-project-02
 
-# 2. Set your OpenAI API key
-export OPENAI_API_KEY=your_key_here
+# 2. Start Ollama (in a separate terminal)
+ollama serve
 
-# 3. Start everything
-docker-compose up --build
-
-# App runs at:
-# Frontend → http://localhost:3000
-# Backend API → http://localhost:8000
-# API Docs → http://localhost:8000/docs
-```
-
-### Option 2 — Manual Setup
-
-```bash
-# Backend
+# 3. Backend
 cd backend
-python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # add your OPENAI_API_KEY
-uvicorn main:app --reload --port 8000
+python run.py
 
-# Database
-psql -U nlq_user -d nlq_db -f ../data/seed.sql
-
-# Frontend
-cd ../frontend
+# 4. Frontend (new terminal)
+cd frontend
 npm install
 npm start
-```
 
----
+# Open http://localhost:3000
+```
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/query/` | Submit NL question → get SQL + chart + summary |
-| GET | `/api/history/` | Get recent query history |
+| POST | `/api/query/` | NL question → SQL + chart + summary |
+| GET | `/api/history/` | Get query history |
 | DELETE | `/api/history/` | Clear history |
-| GET | `/api/schema/` | Get database schema |
+| GET | `/api/schema/` | Get DB schema |
 | GET | `/health` | Health check |
-
----
 
 ## Sample Questions
 
-- *"Show total sales by region"*
-- *"Top 5 products by revenue"*
-- *"Monthly sales trend for 2024"*
-- *"Which customers spent the most?"*
-- *"List all products with rating above 4.5"*
+- "Show total sales by region"
+- "Top 5 products by revenue"
+- "List all customers"
+- "Which salesperson has the highest sales?"
+- "Show all products with rating above 4.5"
 
----
+## Project Structure
 
-## Environment Variables
+```
+testing-project-02/
+├── backend/
+│   ├── main.py              ← FastAPI entry point
+│   ├── run.py               ← Seeds DB + starts server
+│   ├── requirements.txt
+│   ├── .env.example
+│   └── app/
+│       ├── routes/          ← query, history, schema
+│       ├── models/          ← Pydantic models
+│       ├── services/        ← NLQ pipeline (TinyLlama)
+│       └── utils/           ← SQLite DB handler
+├── frontend/
+│   └── src/
+│       ├── App.jsx
+│       ├── components/      ← Navbar, QueryInput, ChartView, etc.
+│       └── services/api.js
+└── README.md
+```
 
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | Your OpenAI API key |
-| `DATABASE_URL` | PostgreSQL connection string |
+## Note on TinyLlama SQL Accuracy
 
----
-
-## Success Metrics (per PRD)
-- ✅ Response time < 5 sec
-- ✅ SQL accuracy > 85% (GPT-4o-mini)
-- ✅ Secure — RBAC-ready, no write queries allowed
+TinyLlama (1.1B params) handles simple queries well. For complex JOINs or multi-table aggregations, SQL accuracy may vary. The app includes:
+- Few-shot prompting to improve accuracy
+- SQL safety validator (blocks DROP/DELETE/UPDATE)
+- Fallback summary if model output is unclear

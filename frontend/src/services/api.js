@@ -1,25 +1,8 @@
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const api = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000' });
 
-const api = axios.create({ baseURL: API_BASE });
-
-export const runQuery = async (question) => {
-  const res = await api.post('/api/query/', { question });
-  return res.data;
-};
-
-export const getHistory = async (limit = 20) => {
-  const res = await api.get(`/api/history/?limit=${limit}`);
-  return res.data;
-};
-
-export const clearHistory = async () => {
-  const res = await api.delete('/api/history/');
-  return res.data;
-};
-
-export const getSchema = async () => {
-  const res = await api.get('/api/schema/');
-  return res.data;
-};
+export const runQuery = (question) => api.post('/api/query/', { question }).then(r => r.data);
+export const getHistory = (limit = 20) => api.get(`/api/history/?limit=${limit}`).then(r => r.data);
+export const clearHistory = () => api.delete('/api/history/').then(r => r.data);
+export const getSchema = () => api.get('/api/schema/').then(r => r.data);
